@@ -14,9 +14,9 @@ export function IsValidLine(line) {
   }
 
   // max length is 255
-  if (line.length > 255) {
-    return false;
-  }
+  // if (line.length > 255) {
+  //   return false;
+  // }
 
   // first char must be a number
   if (!IsNumber(line[0])) {

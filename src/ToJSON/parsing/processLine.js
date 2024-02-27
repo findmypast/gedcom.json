@@ -6,38 +6,16 @@ import drop from 'lodash/drop.js';
 
 import fclone from 'fclone';
 
-import ParsedLine from '../models/ParsedLine.js';
-import Store from '../models/Store.js';
-import TagDefinition from '../models/TagDefinition.js';
-import LineParsingResult from '../models/LineParsingResult.js';
-import ParsingPath from '../models/ParsingPath.js';
+import TagDefinition from '../../models/TagDefinition.js';
+import LineParsingResult from '../../models/LineParsingResult.js';
 
 import { ClearDateTimeMergingInfos } from './parseDate.js';
 
 import lodash from 'lodash-es';
 import deepdash from 'deepdash-es';
+import { parsingOptions, store } from '../../common/parsingOptions.js';
 
 const dd = deepdash(lodash);
-
-let parsingOptions;
-
-/**
- * Store for file\text processing
- * @internal
- */
-let store = new Store();
-
-/**
- * Resets all variables, which are used for parsing
- */
-export function ResetProcessing() {
-  store.Reset();
-  parsingOptions = {};
-}
-
-export function SetParsingOptions(options) {
-  parsingOptions = options;
-}
 
 export function GetResult() {
   let result = store.CreateResultObject();
@@ -79,9 +57,15 @@ export function ProcessLine(line, lastLevel) {
   if (!definition) {
     store.StopParsingUntilLevel(line.Level);
 
-    // add temporaray path, that will be removed later
+    // add temporary path, that will be removed later
     store.AddTempPath();
     return new LineParsingResult(false, 'No tag definition found');
+  }
+
+  if (definition.Ignore) {
+    store.StopParsingUntilLevel(line.Level - 1);
+
+    return new LineParsingResult(true);
   }
 
   store.StartParsing(definition, line);

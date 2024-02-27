@@ -17,15 +17,15 @@ import isEmpty from 'lodash/isEmpty.js';
 import last from 'lodash/last.js';
 import keys from 'lodash/keys.js';
 import first from 'lodash/first.js';
+import isString from 'lodash/isString.js';
 
-import objectPath from 'object-path';
+import objectPath from '@gedcom-poc/object-path';
 
-import ParsingObject from '../models/ParsingObject.js';
-import TagDefinition from '../models/TagDefinition.js';
-import ConvertToString from '../models/converter/ConvertToString.js';
+import ParsingObject from '../../models/ParsingObject.js';
+import TagDefinition from '../../models/TagDefinition.js';
+import ConvertToString from '../../models/converter/ConvertToString.js';
 
 import { IsEmpty } from '../../common.js';
-import isString from "lodash/isString.js";
 import fclone from 'fclone';
 import { AddStartWith } from './manipulateValues.js';
 
@@ -72,7 +72,6 @@ export function CreateMainObject(objects) {
     }
 
     if (!isEmpty(obj.Object) && (isArray(obj.Object) || isObject(obj.Object))) {
-
       SetOrCreateArray(mergeObject.Object, split(obj.Definition.Path, '.'), obj.Definition, obj.Object);
       remove(objects, (x) => isEqual(x, obj));
       return;
@@ -171,7 +170,6 @@ export function CreateMainObject(objects) {
 
   // set all sub objects in object
   forEach(objects, (o) => {
-
     let obj = o;
     let partPath = [];
 
@@ -181,6 +179,15 @@ export function CreateMainObject(objects) {
       }
 
       partPath.push(property);
+      const parentPath = dropRight(partPath);
+      const parentObj = objectPath.get(result, parentPath);
+
+      if (parentPath.length > 0 && objectPath.has(result, parentPath) && isArray(parentObj)) {
+        partPath = parentPath;
+        partPath.push(`${parentObj.length - 1}`);
+        partPath.push(property);
+      }
+
       if (!objectPath.has(result, partPath)) {
         objectPath.set(result, partPath, {});
         return;

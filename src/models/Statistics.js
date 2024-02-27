@@ -6,7 +6,7 @@ import join from 'lodash/join.js';
  */
 export default class Statistics {
   constructor() {
-    this.ParsedLines = [];
+    this.ParsedLines = 0;
     this.IncorrectLines = [];
     this.NotParsedLines = [];
     this.NotParsedLinesWithoutGEDCOMTag = [];
@@ -16,7 +16,7 @@ export default class Statistics {
    * @returns a count of all correctly parsed lines
    */
   get ParsedLinesCount() {
-    return this.ParsedLines.length;
+    return this.ParsedLines;
   }
 
   /**
@@ -45,7 +45,7 @@ export default class Statistics {
    */
   get LinesCount() {
     return (
-      this.ParsedLines.length +
+      this.ParsedLines +
       this.IncorrectLines.length +
       this.NotParsedLines.length +
       this.NotParsedLinesWithoutGEDCOMTag.length

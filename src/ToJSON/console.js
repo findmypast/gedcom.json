@@ -1,5 +1,5 @@
-import Parsing from './models/Parsing.js';
-import ParsingOptions from './models/ParsingOptions';
+import Parsing from '../models/Parsing.js';
+import ParsingOptions from '../models/ParsingOptions.js';
 
 export function Convert(argv) {
   let options = new ParsingOptions();

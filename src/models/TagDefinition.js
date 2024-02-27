@@ -16,6 +16,7 @@ export default class TagDefinition {
     this.IsSingleValue = plainJsObject.IsSingleValue;
     this.CollectAsArray = plainJsObject.CollectAsArray === true;
     this.StartWith = plainJsObject.StartWith;
+    this.Ignore = plainJsObject.Ignore === true;
 
     if (isObject(plainJsObject.Property)) {
       let propertyWithOption = new PropertyWithOption(plainJsObject.Property);
@@ -98,6 +99,7 @@ function CreateConvertTo(type, convertTo) {
       convertTo?.HasMonth,
       convertTo?.HasYear,
       convertTo?.HasDay,
+      convertTo?.HasTime,
       convertTo?.Original,
       convertTo?.Calendar
     );

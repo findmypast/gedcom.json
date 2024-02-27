@@ -1,18 +1,24 @@
-import trimStart from "lodash/trimStart.js";
-import forEach from "lodash/forEach.js";
-import split from "lodash/split.js";
+import crypto from 'crypto';
 
-import Statistics from "../models/Statistics.js";
-import StatisticLine from "../models/StatisticLine.js";
+import yaml from 'js-yaml';
+import LineByLineReader from 'line-by-line';
 
-import { IsValidLine } from "./lineValidation.js";
-import { ParseLine } from "./parseLine.js";
-import { GetResult, ProcessLine, ResetProcessing, SetParsingOptions } from "./processLine.js";
-import ParsingResult from "../models/ParsingResult.js";
-import yaml from "js-yaml";
+import trimStart from 'lodash/trimStart.js';
+import forEach from 'lodash/forEach.js';
+import split from 'lodash/split.js';
 
-import LineByLineReader from "line-by-line";
+import Statistics from '../../models/Statistics.js';
+import StatisticLine from '../../models/StatisticLine.js';
+
+import { IsValidLine } from './lineValidation.js';
+import { ParseLine } from './parseLine.js';
+import { GetResult, ProcessLine } from './processLine.js';
+import ParsingResult from '../../models/ParsingResult.js';
+import { ResetProcessing, SetParsingOptions } from '../../common/parsingOptions.js';
+
 let stats = new Statistics();
+
+let REPLACED_REFS = {};
 
 /**
  * Parses a text to an object
@@ -31,9 +37,11 @@ export function ParseText(text, parsingOptions, invokeProgressFunction) {
 
   ResetProcessing();
 
+  REPLACED_REFS = {};
+
   let lastLevel = 0;
   let lineNumber = 1;
-  let lines = split(text, "\n");
+  let lines = split(text, '\n');
   let yamlOptions = {};
 
   try {
@@ -78,6 +86,8 @@ export function ParseText(text, parsingOptions, invokeProgressFunction) {
 
 /* istanbul ignore next */ // maybe later ;)
 export function ParseFile(path, parsingOptions, doneCallback, errorCallback, invokeProgressFunction) {
+  REPLACED_REFS = {};
+
   // if no progress should be shown, it is not necessary to get the line count of the file at first
   if (!invokeProgressFunction) {
     ExecuteParseFile(path, parsingOptions, doneCallback, errorCallback, 0);
@@ -87,13 +97,13 @@ export function ParseFile(path, parsingOptions, doneCallback, errorCallback, inv
   // read first time to get lines count
   let linesCountLr = new LineByLineReader(path);
   let linesCount = 0;
-  linesCountLr.on("line", function (line) {
+  linesCountLr.on('line', function (line) {
     linesCountLr.pause();
     linesCount++;
     linesCountLr.resume();
   });
 
-  linesCountLr.on("end", function () {
+  linesCountLr.on('end', function () {
     ExecuteParseFile(path, parsingOptions, doneCallback, errorCallback, linesCount, invokeProgressFunction);
   });
 }
@@ -129,18 +139,18 @@ function ExecuteParseFile(path, parsingOptions, doneCallback, errorCallback, lin
     lr.resume();
   };
 
-  lr.on("error", function (err) {
+  lr.on('error', function (err) {
     if (errorCallback) {
       errorCallback(err);
     }
   });
 
-  lr.on("line", function (line) {
+  lr.on('line', function (line) {
     lr.pause();
     ProcessNewLine(lastLevel, lineNumber, line, nextLine);
   });
 
-  lr.on("end", function () {
+  lr.on('end', function () {
     let result = GetResult();
     ResetProcessing();
 
@@ -166,7 +176,9 @@ export function ProcessNewLine(lastLevel, lineNumber, line, nextLine) {
     return stats;
   }
 
-  const parsedLine = ParseLine(actualLine, lineNumber, lastLevel);
+  const replacedRefLine = ReplaceRef(actualLine);
+
+  const parsedLine = ParseLine(replacedRefLine, lineNumber, lastLevel);
 
   if (parsedLine === undefined) {
     stats.IncorrectLines.push(new StatisticLine(lineNumber, actualLine));
@@ -176,8 +188,9 @@ export function ProcessNewLine(lastLevel, lineNumber, line, nextLine) {
 
   let processingResult = ProcessLine(parsedLine, lastLevel);
   if (processingResult.Parsed) {
-    stats.ParsedLines.push(new StatisticLine(lineNumber, actualLine));
-  } else if (parsedLine.Tag && parsedLine.Tag[0] === "_") {
+    // stats.ParsedLines.push(new StatisticLine(lineNumber, actualLine));
+    stats.ParsedLines++;
+  } else if (parsedLine.Tag && parsedLine.Tag[0] === '_') {
     stats.NotParsedLinesWithoutGEDCOMTag.push(new StatisticLine(lineNumber, actualLine, processingResult.Reason));
   } else {
     stats.NotParsedLines.push(new StatisticLine(lineNumber, actualLine, processingResult.Reason));
@@ -186,3 +199,26 @@ export function ProcessNewLine(lastLevel, lineNumber, line, nextLine) {
   nextLine(parsedLine);
   return stats;
 }
+
+const ReplaceRef = (line) => {
+  const refStartMatch = line.match(/\d+ (@[A-Z]\d+@) [A-Z]+$/);
+  const refEndMatch = line.match(/ (@[A-Z]\d+@)$/);
+
+  if (!refStartMatch && !refEndMatch) {
+    return line;
+  }
+
+  if (refStartMatch) {
+    if (!REPLACED_REFS[refStartMatch[1]]) {
+      REPLACED_REFS[refStartMatch[1]] = crypto.randomUUID().toUpperCase();
+    }
+    return line.replace(/@[A-Z]\d+@/, `@${REPLACED_REFS[refStartMatch[1]]}@`);
+  }
+
+  if (refEndMatch) {
+    if (!REPLACED_REFS[refEndMatch[1]]) {
+      REPLACED_REFS[refEndMatch[1]] = crypto.randomUUID().toUpperCase();
+    }
+    return line.replace(/@[A-Z]\d+@/, `@${REPLACED_REFS[refEndMatch[1]]}@`);
+  }
+};

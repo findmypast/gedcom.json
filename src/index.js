@@ -1,4 +1,4 @@
-import JsonParsing from './ToJSON/models/Parsing.js';
-import ParsingOptions from './ToJSON/models/ParsingOptions.js';
+import JsonParsing from './models/Parsing.js';
+import ParsingOptions from './models/ParsingOptions.js';
 
 export { JsonParsing, ParsingOptions };

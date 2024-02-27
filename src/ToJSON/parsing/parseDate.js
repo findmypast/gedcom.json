@@ -14,15 +14,15 @@ import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat.js';
 import objectSupport from 'dayjs/plugin/objectSupport.js';
 
-import ConvertToDate from '../models/converter/ConvertToDate.js';
+import ConvertToDate from '../../models/converter/ConvertToDate.js';
 import fclone from 'fclone';
+import hebcal from 'hebcal';
 
 dayjs.extend(customParseFormat);
 dayjs.extend(objectSupport);
 
 /** properties for merging time and date */
 let lastDate, lastConfig;
-import hebcal from 'hebcal';
 
 /**
  * Clears informations that are needed to merge date and time
@@ -36,11 +36,12 @@ export function ClearDateTimeMergingInfos() {
 /**
  * Merges a time value with the last parsed date value
  *
+ * @param config - The parsing configuration
  * @param value - The time text
  * @param ownProperty - If defined it adds the time value as own property to the date object
  * @returns The time value
  */
-export function ConvertTimeStringToObject(value, ownProperty) {
+export function ConvertTimeStringToObject(config, value, ownProperty) {
   if (!value) {
     return;
   }
@@ -51,6 +52,8 @@ export function ConvertTimeStringToObject(value, ownProperty) {
   if (!(lastDateValue instanceof Date)) {
     return value;
   }
+
+  objectPath.set(lastDate, config.HasTime, false);
 
   let timeSplit = split(value, ':');
   let lastDateAsObject = dayjs(lastDateValue);
@@ -80,6 +83,7 @@ export function ConvertTimeStringToObject(value, ownProperty) {
       lastDateAsObject = lastDateAsObject.add(min, 'minute');
       lastDateAsObject = lastDateAsObject.add(sec, 'second');
       objectPath.set(lastDate, lastConfig.Value, lastDateAsObject.toDate());
+      objectPath.set(lastDate, config.HasTime, true);
     }
 
     if (!ownProperty) {
@@ -201,6 +205,7 @@ function ParseDate(date, config, markAsBetweenIfNotExact = false) {
       objectPath.set(internResult, config.HasYear, true);
       objectPath.set(internResult, config.HasMonth, true);
       objectPath.set(internResult, config.HasDay, true);
+      objectPath.set(internResult, config.HasTime, false); // This comes later
       objectPath.set(result, config.Between, internResult);
 
       // calculate to value
@@ -234,6 +239,7 @@ function ParseDate(date, config, markAsBetweenIfNotExact = false) {
         objectPath.set(and, config.HasYear, true);
         objectPath.set(and, config.HasMonth, true);
         objectPath.set(and, config.HasDay, true);
+        objectPath.set(and, config.HasTime, false); // This comes later
       }
 
       objectPath.set(result, config.And, and);
@@ -353,6 +359,7 @@ function ConvertStringToDate(date, result, config, calendarType) {
     objectPath.set(result, config.HasYear, true);
     objectPath.set(result, config.HasMonth, false);
     objectPath.set(result, config.HasDay, false);
+    objectPath.set(result, config.HasTime, false); // This comes later
 
     if (calendarType === 'Hebrew') {
       let hDate = new hebcal.HDate(`1 Nisan ${splitDate[0]}`);
@@ -375,6 +382,7 @@ function ConvertStringToDate(date, result, config, calendarType) {
     objectPath.set(result, config.HasYear, true);
     objectPath.set(result, config.HasMonth, true);
     objectPath.set(result, config.HasDay, false);
+    objectPath.set(result, config.HasTime, false); // This comes later
 
     if (calendarType === 'Hebrew') {
       let hDate = new hebcal.HDate(`1 ${ConvertShortMonthToFullMonth(splitDate[0])} ${splitDate[1]}`);
@@ -396,6 +404,7 @@ function ConvertStringToDate(date, result, config, calendarType) {
   objectPath.set(result, config.HasYear, true);
   objectPath.set(result, config.HasMonth, true);
   objectPath.set(result, config.HasDay, true);
+  objectPath.set(result, config.HasTime, false); // This comes later
 
   if (calendarType === 'Hebrew') {
     let hDate = new hebcal.HDate(`${splitDate[0]} ${ConvertShortMonthToFullMonth(splitDate[1])} ${splitDate[2]}`);

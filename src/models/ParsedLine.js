@@ -16,4 +16,21 @@ export default class ParsedLine {
     this.Value = value;
     this.ReferenceId = refId;
   }
+
+  toGedcomLine() {
+    let line = `${this.Level}`;
+    if (this.ReferenceId !== '') {
+      if (this.Level === 0) {
+        line += ` ${this.ReferenceId} ${this.Tag}`;
+      } else {
+        line += ` ${this.Tag} ${this.ReferenceId}`;
+      }
+    } else {
+      line += ` ${this.Tag}`;
+    }
+    if (this.Value !== '') {
+      line += ` ${this.Value}`;
+    }
+    return line;
+  }
 }

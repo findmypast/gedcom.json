@@ -1,4 +1,4 @@
-import { ParseFile, ParseText } from '../parsing/parsing.js';
+import { ParseFile, ParseText } from '../ToJSON/parsing/parsing.js';
 import ParsingOptions from './ParsingOptions.js';
 import ParsingResult from './ParsingResult.js';
 

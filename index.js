@@ -1,4 +1,5 @@
-import JsonParsing from './src/ToJSON/models/Parsing.js';
-import ParsingOptions from './src/ToJSON/models/ParsingOptions.js';
+import { parseJSONFile } from './src/ToGEDCOM/parsing/parsing.js';
+import JsonParsing from './src/models/Parsing.js';
+import ParsingOptions from './src/models/ParsingOptions.js';
 
-export { JsonParsing, ParsingOptions };
+export { parseJSONFile, JsonParsing, ParsingOptions };

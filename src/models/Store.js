@@ -15,9 +15,9 @@ import ConvertToTime from './converter/ConvertToTime.js';
 import ParsingObject from './ParsingObject.js';
 import ParsingPath from './ParsingPath.js';
 
-import { CreateResult } from '../processing/result.js';
-import { IsEmpty } from '../../common.js';
-import { AddStartWith, ManipulateValue } from '../processing/manipulateValues.js';
+import { CreateResult } from '../ToJSON/processing/result.js';
+import { IsEmpty } from '../common.js';
+import { AddStartWith, ManipulateValue } from '../ToJSON/processing/manipulateValues.js';
 import DefinitionCache from './DefinitionCache.js';
 
 export default class Store {

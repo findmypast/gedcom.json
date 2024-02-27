@@ -4,23 +4,23 @@ import replace from 'lodash/replace.js';
 import split from 'lodash/split.js';
 import map from 'lodash/map.js';
 
-import ConvertToDate from '../models/converter/ConvertToDate.js';
-import ConvertToArray from '../models/converter/ConvertToArray.js';
+import ConvertToDate from '../../models/converter/ConvertToDate.js';
+import ConvertToArray from '../../models/converter/ConvertToArray.js';
 
 import { ConvertDateStringToObject, ConvertTimeStringToObject } from '../parsing/parseDate.js';
-import ConvertToTime from '../models/converter/ConvertToTime.js';
+import ConvertToTime from '../../models/converter/ConvertToTime.js';
 
 export function ManipulateValue(definition, line) {
   let value = trim(isEmpty(line.ReferenceId) ? line.Value : line.ReferenceId);
   let convertTo = definition.PropertyType ?? definition.ConvertTo;
 
   if (value.match(/^(@.*@)/)) {
-
+    const trimmedValue = value.replace(/@/g, '');
     if (definition.ConvertTo instanceof ConvertToArray) {
-      return ConvertStringToArray(definition.ConvertTo, value);
+      return ConvertStringToArray(definition.ConvertTo, trimmedValue);
     }
 
-    return value;
+    return trimmedValue;
   }
 
   value = AddStartWith(definition.StartWith, value);
@@ -47,7 +47,7 @@ export function ManipulateValue(definition, line) {
   }
 
   if (convertTo instanceof ConvertToTime) {
-    return ConvertTimeStringToObject(value, definition.Property);
+    return ConvertTimeStringToObject(convertTo, value, definition.Property);
   }
 
   if (convertTo instanceof ConvertToArray) {
@@ -68,6 +68,10 @@ export function AddStartWith(startWith, value) {
 
   if (!value) {
     return startWith;
+  }
+
+  if (startWith === '-') {
+    return value;
   }
 
   return `${startWith}${value}`;

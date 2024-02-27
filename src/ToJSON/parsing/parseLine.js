@@ -3,7 +3,7 @@ import join from 'lodash/join.js';
 import trim from 'lodash/trim.js';
 import isEmpty from 'lodash/isEmpty.js';
 
-import ParsedLine from '../models/ParsedLine.js';
+import ParsedLine from '../../models/ParsedLine.js';
 
 import { GetLineLevel, GetReferenceId } from './lineHelper.js';
 
@@ -30,9 +30,9 @@ export function ParseLine(line, lineNumber, lastLevel) {
   let refId = GetReferenceId(tagOrRef);
 
   if (refId !== undefined) {
-    if (refId.length > 23) {
-      return undefined;
-    }
+    // if (refId.length > 23) {
+    //   return undefined;
+    // }
 
     return new ParsedLine(lineNumber, level, valueOrTag, value, refId);
   }

@@ -16,6 +16,7 @@ export default class ConvertToDate extends ConvertTo {
     hasMonth,
     hasYear,
     hasDay,
+    hasTime,
     original,
     calendar
   ) {
@@ -34,6 +35,7 @@ export default class ConvertToDate extends ConvertTo {
     this.HasMonth = hasMonth ?? 'HasMonth';
     this.HasYear = hasYear ?? 'HasYear';
     this.HasDay = hasDay ?? 'HasDay';
+    this.HasTime = hasTime ?? 'HasTime';
     this.Original = original ?? 'Original';
     this.Calendar = calendar ?? 'Calendar';
   }

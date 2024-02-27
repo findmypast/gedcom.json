@@ -1,12 +1,13 @@
 {
-  "name": "gedcom.json",
+  "name": "@gedcom-poc/gedcom.json",
+  "type": "module",
   "version": "1.0.8",
   "description": "Convert GEDCOM Files to an JSON File or an JavaScript-Object and vice versa",
-  "main": "dist/index.js",
+  "main": "index.js",
   "scripts": {
-    "demo:JSON": "ts-node src/console.ts --path 'examples/simpsons.ged'",
-    "demoFile:JSON": "ts-node src/console.ts --path 'examples/simpsons.ged' --out 'test.json'",
-    "demoFileWithProgress:JSON": "ts-node src/console.ts --path 'examples/royal92.ged' --out 'test.json' --showProgress"
+    "demo:JSON": "node src/console.js --path 'examples/simpsons.ged'",
+    "demoFile:JSON": "node src/console.js --path 'examples/simpsons.ged' --out 'test.json'",
+    "demoFileWithProgress:JSON": "node src/console.js --path 'examples/royal92.ged' --out 'test.json' --showProgress"
   },
   "keywords": [
     "gedcom",
@@ -46,7 +47,6 @@
     "julian-gregorian": "^1.0.0",
     "line-by-line": "^0.1.6",
     "lodash": "^4.17.21",
-    "object-path": "^0.11.8",
     "yargs": "^16.2.0"
   }
 }
